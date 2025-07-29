@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Construction Material Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1><i class="fas fa-building"></i> Construction Material Tracker Dashboard</h1>
+    <p>Welcome to your construction material management system</p>
+</div>
+
+<div class="dashboard-grid">
+    <div class="stat-card">
+        <div class="stat-value">₹{{ "%.2f"|format(total_cost) }}</div>
+        <div class="stat-label">Total Cost</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ total_entries }}</div>
+        <div class="stat-label">Total Entries</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ unique_sites }}</div>
+        <div class="stat-label">Construction Sites</div>
+    </div>
+</div>
+
+{% if recent_entries %}
+<div class="card">
+    <h2><i class="fas fa-clock"></i> Recent Entries</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Site</th>
+                    <th>Material</th>
+                    <th>Quantity</th>
+                    <th>Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in recent_entries %}
+                <tr>
+                    <td>{{ entry.Date.strftime('%Y-%m-%d') if entry.Date else 'N/A' }}</td>
+                    <td>{{ entry.Site_Name }}</td>
+                    <td>{{ entry.Material_Name }}</td>
+                    <td>{{ entry.Quantity }} {{ entry.Unit }}</td>
+                    <td>${{ "%.2f"|format(entry.Total_Cost) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <h2><i class="fas fa-rocket"></i> Quick Actions</h2>
+    <a href="/add_material" class="btn"><i class="fas fa-plus"></i> Add New Material</a>
+    <a href="/view_materials" class="btn btn-secondary"><i class="fas fa-list"></i> View All Materials</a>
+    <a href="/analytics" class="btn btn-secondary"><i class="fas fa-chart-bar"></i> View Analytics</a>
+</div>
+{% endblock %}

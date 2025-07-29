@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}View Materials - Construction Material Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1><i class="fas fa-list"></i> Material Records</h1>
+    
+    <div class="filters">
+        <form method="GET" style="contents: '';">
+            <div class="form-group">
+                <label for="site">Filter by Site:</label>
+                <input type="text" id="site" name="site" value="{{ current_filters.site }}" placeholder="Site name...">
+            </div>
+            
+            <div class="form-group">
+                <label for="material_type">Filter by Material Type:</label>
+                <select id="material_type" name="material_type">
+                    <option value="">All Types</option>
+                    {% for type in material_types %}
+                    <option value="{{ type }}" {% if current_filters.material_type == type %}selected{% endif %}>{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="date_from">From Date:</label>
+                <input type="date" id="date_from" name="date_from" value="{{ current_filters.date_from }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="date_to">To Date:</label>
+                <input type="date" id="date_to" name="date_to" value="{{ current_filters.date_to }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="sort_by">Sort by:</label>
+                <select id="sort_by" name="sort_by">
+                    <option value="Date" {% if current_filters.sort_by == 'Date' %}selected{% endif %}>Date</option>
+                    <option value="Site_Name" {% if current_filters.sort_by == 'Site_Name' %}selected{% endif %}>Site Name</option>
+                    <option value="Material_Type" {% if current_filters.sort_by == 'Material_Type' %}selected{% endif %}>Material Type</option>
+                    <option value="Total_Cost" {% if current_filters.sort_by == 'Total_Cost' %}selected{% endif %}>Total Cost</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="sort_order">Sort Order:</label>
+                <select id="sort_order" name="sort_order">
+                    <option value="desc" {% if current_filters.sort_order == 'desc' %}selected{% endif %}>Descending</option>
+                    <option value="asc" {% if current_filters.sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+                </select>
+            </div>
+            
+            <div class="form-group" style="display: flex; gap: 10px; align-items: end;">
+                <button type="submit" class="btn"><i class="fas fa-filter"></i> Apply Filters</button>
+                <a href="/view_materials" class="btn btn-secondary"><i class="fas fa-times"></i> Clear</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="card">
+        <h3>Summary</h3>
+        <p><strong>Filtered Results:</strong> {{ filtered_count }} entries | <strong>Total Cost:</strong> ₹{{ "%.2f"|format(filtered_total_cost) }}</p>
+    </div>
+</div>
+
+{% if materials %}
+<div class="card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Site Name</th>
+                    <th>Material Type</th>
+                    <th>Material Name</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Unit Cost</th>
+                    <th>Total Cost</th>
+                    <th>Supplier</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for material in materials %}
+                <tr>
+                    <td>{{ material.Date.strftime('%Y-%m-%d') if material.Date else 'N/A' }}</td>
+                    <td>{{ material.Site_Name }}</td>
+                    <td>{{ material.Material_Type }}</td>
+                    <td>{{ material.Material_Name }}</td>
+                    <td>{{ material.Quantity }}</td>
+                    <td>{{ material.Unit }}</td>
+                    <td>₹{{ "%.2f"|format(material.Unit_Cost) }}</td>
+                    <td>₹{{ "%.2f"|format(material.Total_Cost) }}</td>
+                    <td>{{ material.Supplier or 'N/A' }}</td>
+                    <td>{{ material.Notes or 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <p style="text-align: center; color: #666; font-style: italic;">
+        <i class="fas fa-info-circle"></i> No materials found matching your criteria.
+    </p>
+</div>
+{% endif %}
+{% endblock %}

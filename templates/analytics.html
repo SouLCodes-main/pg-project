@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Construction Material Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1><i class="fas fa-chart-bar"></i> Analytics Dashboard</h1>
+    <p>Visualize your construction material spending patterns and trends</p>
+</div>
+
+{% if summary %}
+<div class="card">
+    <h2><i class="fas fa-info-circle"></i> Summary Statistics</h2>
+    <div class="dashboard-grid">
+        <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 10px;">
+            <strong>Total Spending:</strong> ₹{{ "%.2f"|format(summary.total_cost) }}
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 10px;">
+            <strong>Average Cost per Entry:</strong> ₹{{ "%.2f"|format(summary.avg_cost_per_entry) }}
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 10px;">
+            <strong>Most Expensive Site:</strong> {{ summary.most_expensive_site }}
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 10px;">
+            <strong>Most Used Material:</strong> {{ summary.most_used_material }}
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 10px; grid-column: span 2;">
+            <strong>Date Range:</strong> {{ summary.date_range }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if charts %}
+<div class="chart-grid">
+    {% if charts.cost_by_site %}
+    <div class="chart-container">
+        <h3><i class="fas fa-building"></i> Total Cost by Construction Site</h3>
+        <img src="data:image/png;base64,{{ charts.cost_by_site }}" alt="Cost by Site Chart" style="max-width: 100%; height: auto;">
+    </div>
+    {% endif %}
+    
+    {% if charts.cost_over_time %}
+    <div class="chart-container">
+        <h3><i class="fas fa-chart-line"></i> Cumulative Cost Over Time</h3>
+        <img src="data:image/png;base64,{{ charts.cost_over_time }}" alt="Cost Over Time Chart" style="max-width: 100%; height: auto;">
+    </div>
+    {% endif %}
+    
+    {% if charts.material_distribution %}
+    <div class="chart-container">
+        <h3><i class="fas fa-chart-pie"></i> Cost Distribution by Material Type</h3>
+        <img src="data:image/png;base64,{{ charts.material_distribution }}" alt="Material Distribution Chart" style="max-width: 100%; height: auto;">
+    </div>
+    {% endif %}
+    
+    {% if charts.monthly_spending %}
+    <div class="chart-container">
+        <h3><i class="fas fa-calendar-alt"></i> Monthly Spending</h3>
+        <img src="data:image/png;base64,{{ charts.monthly_spending }}" alt="Monthly Spending Chart" style="max-width: 100%; height: auto;">
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<div class="card">
+    <p style="text-align: center; color: #666; font-style: italic;">
+        <i class="fas fa-info-circle"></i> No data available for analytics. Add some material records first!
+    </p>
+    <div style="text-align: center; margin-top: 1rem;">
+        <a href="/add_material" class="btn"><i class="fas fa-plus"></i> Add Material</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
