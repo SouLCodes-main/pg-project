@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Usage History - Construction Material Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1><i class="fas fa-history"></i> Usage History</h1>
+    
+    <div class="card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); margin-bottom: 2rem;">
+        <h3><i class="fas fa-box"></i> {{ material.Material_Name }}</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div><strong>Type:</strong> {{ material.Material_Type }}</div>
+            <div><strong>Site:</strong> {{ material.Site_Name }}</div>
+            <div><strong>Original Quantity:</strong> {{ material.Quantity }} {{ material.Unit }}</div>
+            <div><strong>Supplier:</strong> {{ material.Supplier or 'N/A' }}</div>
+            <div><strong>Unit Cost:</strong> ₹{{ "%.2f"|format(material.Unit_Cost) }}</div>
+            <div><strong>Date Added:</strong> {{ material.Date.strftime('%Y-%m-%d') if material.Date else 'N/A' }}</div>
+        </div>
+    </div>
+</div>
+
+{% if usage_records %}
+<div class="card">
+    <h3><i class="fas fa-list"></i> Usage Records</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Usage Date</th>
+                    <th>Quantity Used</th>
+                    <th>Purpose</th>
+                    <th>Used By</th>
+                    <th>Cumulative Used</th>
+                    <th>Remaining After</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in usage_records %}
+                <tr>
+                    <td>{{ record.Usage_Date.strftime('%Y-%m-%d') if record.Usage_Date else 'N/A' }}</td>
+                    <td>{{ record.Used_Quantity }} {{ record.Unit }}</td>
+                    <td>{{ record.Usage_Purpose }}</td>
+                    <td>{{ record.Used_By }}</td>
+                    <td>{{ record.Cumulative_Used }} {{ record.Unit }}</td>
+                    <td>
+                        <span style="color: {% if record.Remaining_After <= 0 %}#dc3545{% elif record.Remaining_After < material.Quantity * 0.2 %}#fd7e14{% else %}#28a745{% endif %}; font-weight: bold;">
+                            {{ record.Remaining_After }} {{ record.Unit }}
+                        </span>
+                    </td>
+                    <td>{{ record.Notes or 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <p style="text-align: center; color: #666; font-style: italic;">
+        <i class="fas fa-info-circle"></i> No usage records found for this material.
+    </p>
+</div>
+{% endif %}
+
+<div class="card">
+    <a href="/material_usage" class="btn"><i class="fas fa-arrow-left"></i> Back to Material Usage</a>
+    {% if usage_records %}
+    <a href="/add_usage/{{ material.Material_ID }}" class="btn btn-secondary"><i class="fas fa-plus"></i> Add More Usage</a>
+    {% endif %}
+</div>
+{% endblock %}

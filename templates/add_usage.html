@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Add Usage - Construction Material Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1><i class="fas fa-minus"></i> Record Material Usage</h1>
+    
+    <div class="card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); margin-bottom: 2rem;">
+        <h3><i class="fas fa-info-circle"></i> Material Information</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div><strong>Material:</strong> {{ material.Material_Name }}</div>
+            <div><strong>Type:</strong> {{ material.Material_Type }}</div>
+            <div><strong>Site:</strong> {{ material.Site_Name }}</div>
+            <div><strong>Original Quantity:</strong> {{ material.Quantity }} {{ material.Unit }}</div>
+            <div><strong>Remaining:</strong> 
+                <span style="color: {% if material_remaining.Remaining_Quantity <= 0 %}#dc3545{% elif material_remaining.Remaining_Quantity < material.Quantity * 0.2 %}#fd7e14{% else %}#28a745{% endif %}; font-weight: bold;">
+                    {{ material_remaining.Remaining_Quantity }} {{ material.Unit }}
+                </span>
+            </div>
+            <div><strong>Remaining %:</strong> {{ "%.1f"|format(material_remaining.Remaining_Percentage) }}%</div>
+        </div>
+    </div>
+    
+    {% if error %}
+    <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+    </div>
+    {% endif %}
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="usage_date">Usage Date:</label>
+            <input type="date" id="usage_date" name="usage_date" required value="{{ today }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="used_quantity">Quantity Used:</label>
+            <input type="number" id="used_quantity" name="used_quantity" step="0.01" required 
+                   placeholder="0.00" max="{{ material_remaining.Remaining_Quantity }}">
+            <small style="color: #666; font-style: italic;">
+                Maximum available: {{ material_remaining.Remaining_Quantity }} {{ material.Unit }}
+            </small>
+        </div>
+        
+        <div class="form-group">
+            <label for="usage_purpose">Usage Purpose:</label>
+            <select id="usage_purpose" name="usage_purpose" required>
+                <option value="">Select Purpose</option>
+                <option value="Foundation Work">Foundation Work</option>
+                <option value="Structural Work">Structural Work</option>
+                <option value="Flooring">Flooring</option>
+                <option value="Roofing">Roofing</option>
+                <option value="Electrical Installation">Electrical Installation</option>
+                <option value="Plumbing Work">Plumbing Work</option>
+                <option value="Finishing Work">Finishing Work</option>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Repair Work">Repair Work</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="used_by">Used By (Person/Team):</label>
+            <input type="text" id="used_by" name="used_by" required placeholder="Person or team name">
+        </div>
+        
+        <div class="form-group">
+            <label for="notes">Notes:</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="Additional details about usage..."></textarea>
+        </div>
+        
+        <button type="submit" class="btn"><i class="fas fa-save"></i> Record Usage</button>
+        <a href="/material_usage" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Usage</a>
+    </form>
+</div>
+
+<script>
+// Real-time validation for usage quantity
+document.getElementById('used_quantity').addEventListener('input', function() {
+    const usedQty = parseFloat(this.value) || 0;
+    const maxQty = {{ material_remaining.Remaining_Quantity }};
+    
+    if (usedQty > maxQty) {
+        this.style.borderColor = '#dc3545';
+        this.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+    } else {
+        this.style.borderColor = '#28a745';
+        this.style.boxShadow = '0 0 0 3px rgba(40, 167, 69, 0.1)';
+    }
+});
+</script>
+{% endblock %}

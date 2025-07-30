@@ -80,11 +80,12 @@
                     <th>Total Cost</th>
                     <th>Supplier</th>
                     <th>Notes</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for material in materials %}
-                <tr>
+                <tr id="row-{{ loop.index0 }}">
                     <td>{{ material.Date.strftime('%Y-%m-%d') if material.Date else 'N/A' }}</td>
                     <td>{{ material.Site_Name }}</td>
                     <td>{{ material.Material_Type }}</td>
@@ -95,6 +96,12 @@
                     <td>₹{{ "%.2f"|format(material.Total_Cost) }}</td>
                     <td>{{ material.Supplier or 'N/A' }}</td>
                     <td>{{ material.Notes or 'N/A' }}</td>
+                    <td>
+                        <button onclick="deleteEntry({{ loop.index0 }}, '{{ material.Material_Name }}', '{{ material.Site_Name }}')" 
+                                class="btn btn-danger" style="padding: 0.5rem; font-size: 0.8rem;">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -108,4 +115,33 @@
     </p>
 </div>
 {% endif %}
+
+<script>
+function deleteEntry(entryId, materialName, siteName) {
+    if (confirm(`Are you sure you want to delete ${materialName} from ${siteName}?`)) {
+        fetch(`/delete_entry/${entryId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the row from the table
+                document.getElementById(`row-${entryId}`).remove();
+                alert('Entry deleted successfully');
+                // Reload the page to update all statistics and filters
+                window.location.reload();
+            } else {
+                alert('Could not delete entry: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Could not delete entry. Please try again.');
+        });
+    }
+}
+</script>
 {% endblock %}

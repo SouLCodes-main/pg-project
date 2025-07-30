@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Prabal Group - Construction Material Tracker{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -168,6 +169,18 @@
             background: linear-gradient(135deg, #dc3545, #c82333);
         }
 
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c82333, #a71e2a);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
         .table-container {
             overflow-x: auto;
             border-radius: 15px;
@@ -278,15 +291,12 @@
 </head>
 <body>
     <div class="container">
-        <div class="brand-header" style="text-align: center; padding: 1rem; color: white; margin-bottom: 2rem;">
-            <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Prabal Group</h1>
-            <p style="font-size: 1.1rem; opacity: 0.9;">Construction Material Management System</p>
-        </div>
         <nav class="navbar">
             <ul>
                 <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="/add_material"><i class="fas fa-plus"></i> Add Material</a></li>
                 <li><a href="/view_materials"><i class="fas fa-list"></i> View Materials</a></li>
+                <li><a href="/material_usage"><i class="fas fa-chart-pie"></i> Material Usage</a></li>
                 <li><a href="/analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
                 <li><a href="/export"><i class="fas fa-download"></i> Export Data</a></li>
             </ul>

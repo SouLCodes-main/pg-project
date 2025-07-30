@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Material Usage - Construction Material Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1><i class="fas fa-chart-pie"></i> Material Usage & Inventory</h1>
+    <p>Track material consumption and remaining quantities</p>
+    
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <div class="stat-value">₹{{ "%.2f"|format(total_remaining_value) }}</div>
+            <div class="stat-label">Remaining Value</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ available_count }}</div>
+            <div class="stat-label">Available Materials</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ depleted_count }}</div>
+            <div class="stat-label">Depleted Materials</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3><i class="fas fa-filter"></i> Filter Materials</h3>
+    
+    <div class="filters">
+        <form method="GET" style="contents: '';">
+            <div class="form-group">
+                <label for="site">Filter by Site:</label>
+                <input type="text" id="site" name="site" value="{{ current_filters.site }}" placeholder="Site name...">
+            </div>
+            
+            <div class="form-group">
+                <label for="material_type">Filter by Material Type:</label>
+                <select id="material_type" name="material_type">
+                    <option value="">All Types</option>
+                    {% for type in material_types %}
+                    <option value="{{ type }}" {% if current_filters.material_type == type %}selected{% endif %}>{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="status">Filter by Status:</label>
+                <select id="status" name="status">
+                    <option value="">All Status</option>
+                    <option value="Available" {% if current_filters.status == 'Available' %}selected{% endif %}>Available</option>
+                    <option value="Depleted" {% if current_filters.status == 'Depleted' %}selected{% endif %}>Depleted</option>
+                </select>
+            </div>
+            
+            <div class="form-group" style="display: flex; gap: 10px; align-items: end;">
+                <button type="submit" class="btn"><i class="fas fa-filter"></i> Apply Filters</button>
+                <a href="/material_usage" class="btn btn-secondary"><i class="fas fa-times"></i> Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if materials %}
+<div class="card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date Added</th>
+                    <th>Site Name</th>
+                    <th>Material</th>
+                    <th>Original Qty</th>
+                    <th>Used Qty</th>
+                    <th>Remaining Qty</th>
+                    <th>Usage %</th>
+                    <th>Remaining %</th>
+                    <th>Remaining Value</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for material in materials %}
+                <tr>
+                    <td>{{ material.Date.strftime('%Y-%m-%d') if material.Date else 'N/A' }}</td>
+                    <td>{{ material.Site_Name }}</td>
+                    <td>
+                        <strong>{{ material.Material_Name }}</strong><br>
+                        <small style="color: #666;">{{ material.Material_Type }}</small>
+                    </td>
+                    <td>{{ material.Original_Quantity }} {{ material.Unit }}</td>
+                    <td>{{ material.Used_Quantity }} {{ material.Unit }}</td>
+                    <td>
+                        <strong style="color: {% if material.Remaining_Quantity <= 0 %}#dc3545{% elif material.Remaining_Quantity < material.Original_Quantity * 0.2 %}#fd7e14{% else %}#28a745{% endif %};">
+                            {{ material.Remaining_Quantity }} {{ material.Unit }}
+                        </strong>
+                    </td>
+                    <td>
+                        <div style="background: #e9ecef; border-radius: 10px; height: 20px; position: relative; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #dc3545, #fd7e14); height: 100%; width: {{ material.Usage_Percentage }}%; border-radius: 10px;"></div>
+                            <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.8rem; font-weight: bold; color: #333;">
+                                {{ "%.1f"|format(material.Usage_Percentage) }}%
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="background: #e9ecef; border-radius: 10px; height: 20px; position: relative; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #28a745, #20c997); height: 100%; width: {{ material.Remaining_Percentage }}%; border-radius: 10px;"></div>
+                            <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.8rem; font-weight: bold; color: #333;">
+                                {{ "%.1f"|format(material.Remaining_Percentage) }}%
+                            </span>
+                        </div>
+                    </td>
+                    <td>₹{{ "%.2f"|format(material.Remaining_Value) }}</td>
+                    <td>
+                        <span class="badge" style="padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.8rem; color: white; background: {% if material.Status == 'Available' %}linear-gradient(135deg, #28a745, #20c997){% else %}linear-gradient(135deg, #dc3545, #c82333){% endif %};">
+                            {{ material.Status }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if material.Status == 'Available' %}
+                        <a href="/add_usage/{{ material.Material_ID }}" class="btn btn-small" style="margin-bottom: 0.2rem;">
+                            <i class="fas fa-minus"></i> Use
+                        </a><br>
+                        {% endif %}
+                        <a href="/usage_history/{{ material.Material_ID }}" class="btn btn-secondary btn-small">
+                            <i class="fas fa-history"></i> History
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <p style="text-align: center; color: #666; font-style: italic;">
+        <i class="fas fa-info-circle"></i> No materials found. Add some materials first to track usage.
+    </p>
+    <div style="text-align: center; margin-top: 1rem;">
+        <a href="/add_material" class="btn"><i class="fas fa-plus"></i> Add Material</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
