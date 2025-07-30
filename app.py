@@ -514,6 +514,7 @@ def export_data():
         download_name=f'construction_materials_{datetime.now().strftime("%Y%m%d")}.csv'
     )
 
+initialize_data()
+
 if __name__ == '__main__':
-    initialize_data()
-    app.run(debug=True)
+    app.run()
