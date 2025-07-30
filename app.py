@@ -11,12 +11,21 @@ import seaborn as sns
 
 app = Flask(__name__)
 
+# Configure app for production
+app.config['ENV'] = os.environ.get('FLASK_ENV', 'production')
+app.config['DEBUG'] = False if app.config['ENV'] == 'production' else True
+
 # Set matplotlib style
 plt.style.use('seaborn-v0_8')
 sns.set_palette("husl")
 
-# Data file path
-DATA_FILE = 'construction_materials.csv'
+# Data file paths - use /tmp for Render's writable directory in production
+if app.config['ENV'] == 'production':
+    DATA_FILE = '/tmp/construction_materials.csv'
+    USAGE_FILE = '/tmp/material_usage.csv'
+else:
+    DATA_FILE = 'construction_materials.csv'
+    USAGE_FILE = 'material_usage.csv'
 
 def initialize_data():
     """Initialize CSV files with headers if they don't exist"""
